@@ -261,12 +261,21 @@ class Container extends Nette\FreezableObject
 			throw new ServiceCreationException("Class $class is not instantiable.");
 
 		} elseif ($constructor = $rc->getConstructor()) {
-			return $rc->newInstanceArgs(Helpers::autowireArguments($constructor, $args, $this));
+			$obj = $rc->newInstanceArgs(Helpers::autowireArguments($constructor, $args, $this));
 
 		} elseif ($args) {
 			throw new ServiceCreationException("Unable to pass arguments, class $class has no constructor.");
+
+		} else {
+			$obj = new $class;
 		}
-		return new $class;
+
+		foreach (array_reverse($rc->getMethods(Nette\Reflection\Method::IS_PUBLIC)) as $method) {
+			if (substr($method->getName(), 0, 6) === 'inject') {
+				$method->invokeArgs($obj, Helpers::autowireArguments($method, array(), $this));
+			}
+		}
+		return $obj;
 	}
 
 

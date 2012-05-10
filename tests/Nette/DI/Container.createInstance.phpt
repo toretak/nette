@@ -19,6 +19,7 @@ require __DIR__ . '/../bootstrap.php';
 class Test
 {
 	public $container;
+	public $injects;
 
 	function __construct(stdClass $obj, DI\Container $container)
 	{
@@ -28,6 +29,21 @@ class Test
 	function method(stdClass $obj, DI\Container $container)
 	{
 		return isset($obj->prop);
+	}
+
+	function inject(stdClass $obj)
+	{
+		$this->injects[] = __METHOD__;
+	}
+
+	function injectA(stdClass $obj)
+	{
+		$this->injects[] = __METHOD__;
+	}
+
+	protected function injectB(stdClass $obj)
+	{
+		$this->injects[] = __METHOD__;
 	}
 
 }
@@ -49,5 +65,7 @@ $container = new Container;
 $test = $container->createInstance('Test');
 Assert::true( $test instanceof Test );
 Assert::same( $container, $test->container );
+Assert::same( array('Test::injectA', 'Test::inject'), $test->injects );
+
 Assert::same( FALSE, $container->callMethod(array($test, 'method')) );
 Assert::same( TRUE, $container->callMethod(array($test, 'method'), array((object) array('prop' => TRUE))) );
