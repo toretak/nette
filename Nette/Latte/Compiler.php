@@ -119,7 +119,7 @@ class Compiler extends Nette\Object
 
 		try {
 			foreach ($tokens as $this->position => $token) {
-                                if($this->ignoreUndefinedMacros && $token->type === Token::MACRO_TAG  && $token->name !== NULL && !isSet($this->macros[($token->name == '/' ? substr($token->name, 1) : $token->name)])) {
+                                if($this->ignoreUndefinedMacros && $token->type === Token::MACRO_TAG  && $token->name !== NULL && !isSet($this->macros[($token->name[0] == '/' ? substr($token->name, 1) : $token->name)])) {
                                     // if macro not found, change type to text
                                     $token->type = Token::TEXT;
                                 }
